@@ -1,15 +1,11 @@
 # Migraterator
 
-![Migraterator Logo](docs/logo.png)
-
 > *"Behold, Perry the Platypus! My latest invention: the Migraterator!"*
 
-## Overview
-
-Migraterator is a GitHub Action that automatically analyzes infrastructure changes in a PR, predicts their impact, helping DevOps teams understand the potential consequences of Terraform and Kubernetes changes before they're deployed especially since Infrastructure-as-Code (IaC) changes in Terraform or Kubernetes can cause unintended downtime, cost increases, or security risks. Migraterator helps by:
+Migraterator is a GitHub Action that automatically analyses infrastructure changes in a PR, predicts their impact, helping DevOps teams understand the potential consequences of Terraform and Kubernetes changes before they're deployed especially since Infrastructure-as-Code (IaC) changes in Terraform or Kubernetes can cause unintended downtime, cost increases, or security risks. Migraterator helps by:
 
 - ✅ Detecting changes in Terraform (.tf), Kubernetes YAML, or Helm charts
-- ✅ Analyzing resource modifications, additions, and deletions
+- ✅ analysing resource modifications, additions, and deletions
 - ✅ Suggesting rollback strategies and pre-migration steps
 - ✅ Warning about potential downtime, cost spikes, or security risks
 
@@ -59,7 +55,7 @@ on:
       - '**/values.yaml'
 
 jobs:
-  analyze-infrastructure-changes:
+  analyse-infrastructure-changes:
     runs-on: ubuntu-latest
     
     steps:
