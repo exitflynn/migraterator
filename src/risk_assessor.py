@@ -144,12 +144,35 @@ class RiskAssessor:
                         "recommendation": "Review IAM changes carefully to ensure principle of least privilege"
                     })
         
+        # Check Kubernetes changes for security risks
+        if self.kubernetes_analysis:
+            kubectl_results = self.kubernetes_analysis.get("kubectl_results", {})
+            
+            for file_path, result in kubectl_results.items():
+                parsed_diff = result.get("parsed_diff", {})
+                
+                # Check for security-related changes
+                for added in parsed_diff.get("added", []):
+                    if "privileged: true" in added:
+                        risks.append({
+                            "severity": "critical",
+                            "description": f"Container running in privileged mode in {file_path} poses security risk",
+                            "recommendation": "Avoid privileged containers unless absolutely necessary"
+                        })
+                    elif "hostNetwork: true" in added:
+                        risks.append({
+                            "severity": "high",
+                            "description": f"Container using host network in {file_path} poses security risk",
+                            "recommendation": "Avoid host network unless absolutely necessary"
+                        })
+        
         return risks
     
     def suggest_rollback_strategy(self):
         """Suggest rollback strategies based on the changes"""
         strategies = []
         
+        # Terraform rollback strategies
         if self.terraform_analysis:
             strategies.append({
                 "tool": "Terraform",
@@ -160,6 +183,27 @@ class RiskAssessor:
                     "For full rollback, revert the PR and run `terraform apply`"
                 ]
             })
+        
+        # Kubernetes rollback strategies
+        if self.kubernetes_analysis:
+            strategies.append({
+                "tool": "Kubernetes",
+                "steps": [
+                    "For Deployments, use `kubectl rollout undo deployment/DEPLOYMENT_NAME`",
+                    "For StatefulSets, use `kubectl rollout undo statefulset/STATEFULSET_NAME`",
+                    "For other resources, revert the YAML files and reapply with `kubectl apply`"
+                ]
+            })
+            
+            # Helm rollback strategies
+            if self.kubernetes_analysis.get("helm_results"):
+                strategies.append({
+                    "tool": "Helm",
+                    "steps": [
+                        "Use `helm history RELEASE_NAME` to see revision history",
+                        "Use `helm rollback RELEASE_NAME REVISION_NUMBER` to rollback to a previous version"
+                    ]
+                })
         
         return strategies
     
@@ -172,6 +216,7 @@ class RiskAssessor:
             "rollback_strategies": self.suggest_rollback_strategy()
         }
         
+        # Calculate overall risk level
         risk_levels = {
             "critical": 0,
             "high": 0,

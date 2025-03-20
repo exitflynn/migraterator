@@ -13,7 +13,7 @@ class ReportGenerator:
             "title": "Infrastructure Change Analysis",
             "sections": []
         }
-        
+
         if self.terraform_analysis:
             plan_results = self.terraform_analysis.get("plan_results", {})
             
@@ -59,7 +59,45 @@ class ReportGenerator:
                 terraform_summary["content"].append("No Terraform resource changes detected.")
             
             summary["sections"].append(terraform_summary)
-
+        
+        if self.kubernetes_analysis:
+            kubectl_results = self.kubernetes_analysis.get("kubectl_results", {})
+            helm_results = self.kubernetes_analysis.get("helm_results", {})
+            
+            kubernetes_summary = {
+                "title": "Kubernetes Changes",
+                "content": []
+            }
+            
+            if kubectl_results:
+                kubernetes_summary["content"].append("**Kubernetes Resource Changes:**")
+                
+                for file_path, result in kubectl_results.items():
+                    parsed_diff = result.get("parsed_diff", {})
+                    
+                    added = len(parsed_diff.get("added", []))
+                    modified = len(parsed_diff.get("modified", []))
+                    removed = len(parsed_diff.get("removed", []))
+                    
+                    kubernetes_summary["content"].append(
+                        f"- {file_path}: {added} additions, {modified} modifications, {removed} removals"
+                    )
+            
+            if helm_results:
+                kubernetes_summary["content"].append("**Helm Chart Changes:**")
+                
+                for chart_path, result in helm_results.items():
+                    if "error" in result:
+                        kubernetes_summary["content"].append(
+                            f"- {chart_path}: Error analysing chart - {result['error']}"
+                        )
+                    else:
+                        kubernetes_summary["content"].append(
+                            f"- {chart_path}: {result.get('resource_count', 0)} resources in template"
+                        )
+            
+            summary["sections"].append(kubernetes_summary)
+            
         if self.risk_assessment:
             risk_summary = {
                 "title": "Risk Assessment",
