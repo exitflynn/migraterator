@@ -1,9 +1,9 @@
 import subprocess
 import yaml
 import os
-from utils.diff_utils import parse_diff
+from src.utils.diff_utils import parse_diff
 
-class Kubernetesanalyser:
+class KubernetesAnalyser:
     def __init__(self, repo_path, pr_files):
         self.repo_path = repo_path
         self.pr_files = [f for f in pr_files if f.endswith(('.yaml', '.yml'))]

@@ -1,4 +1,4 @@
-from utils.llm_client import LLMClient
+from src.utils.llm_client import LLMClient
 
 class ReportGenerator:
     def __init__(self, terraform_analysis=None, kubernetes_analysis=None, risk_assessment=None):
