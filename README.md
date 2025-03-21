@@ -2,39 +2,32 @@
 
 > *"Behold, Perry the Platypus! My latest invention: the Migraterator!"*
 
-Migraterator is a GitHub Action that automatically analyses infrastructure changes in a PR, predicts their impact, helping DevOps teams understand the potential consequences of Terraform and Kubernetes changes before they're deployed especially since Infrastructure-as-Code (IaC) changes in Terraform or Kubernetes can cause unintended downtime, cost increases, or security risks. Migraterator helps by:
+Migraterator is a GitHub Action that wraps over existing LLM offerings which is tailored to analysing infrastructure changes in a PR in an automated fashion, predicting their impact, helping DevOps teams understand the potential consequences of Terraform and Kubernetes changes before they're deployed especially since Infrastructure-as-Code (IaC) changes in Terraform or Kubernetes can cause unintended downtime, cost increases, or security risks. Migraterator helps by:
 
-- ✅ Detecting changes in Terraform (.tf), Kubernetes YAML, or Helm charts
-- ✅ analysing resource modifications, additions, and deletions
-- ✅ Suggesting rollback strategies and pre-migration steps
-- ✅ Warning about potential downtime, cost spikes, or security risks
+- Detecting changes in Terraform (.tf), Kubernetes YAML, or Helm charts
+- Analysing resource modifications, additions, and deletions
+- Suggesting rollback strategies and pre-migration steps
+- Warning about potential downtime, cost spikes, or security risks
 
 ## How It Works
 
 The GitHub Action triggers when a PR contains Terraform/Kubernetes files and performs the following:
 
-### 1️⃣ Terraform Plan Analysis
+### 1️. Terraform Plan Analysis
 
-- Runs `terraform plan` to detect changes
-- Extracts key updates (e.g., aws_instance type, eks_cluster settings, networking changes)
-- Uses an LLM to summarize changes in plain English with a focus on impact
+- Runs `terraform plan` to detect changes, extracts key updates (e.g., aws_instance type, eks_cluster settings, networking changes) and uses an LLM to summarize changes in plain impact-focused language.
 
-### 2️⃣ Kubernetes Diff Analysis
+### 2. Kubernetes Diff Analysis
 
-- Runs `kubectl diff` to check modifications in Deployments, Services, ConfigMaps, etc.
-- Highlights breaking changes, such as deleted volumes or changed environment variables
+- Runs `kubectl diff` to check modifications in Deployments, Services, ConfigMaps, etc. and highlights breaking changes, such as deleted volumes or changed environment variables
 
-### 3️⃣ Risk Assessment & Migration Recommendations
+### 3️. Risk Assessment & Migration Recommendations
 
-- Identifies downtime risks (e.g., deleting resources without replacements)
-- Warns about cost changes from new cloud resources
-- Suggests rollback strategies (terraform destroy, kubectl rollback, or helm rollback)
+- Identifies downtime risks (e.g., deleting resources without replacements), warns about cost changes from new cloud resources, suggests rollback strategies (like terraform destroy, kubectl rollback, or helm rollback).
 
-### 4️⃣ PR Comment with Migration Plan
+### 4️. PR Comment with Migration Plan
 
-- Generates a summary of changes and their impact
-- Provides recommendations for testing and rollback
-- Highlights potential compliance or security issues
+- Generates a summary of changes and their impact, provides recommendations for testing and rollback, highlights potential compliance or security issues
 
 ## Installation
 
@@ -121,6 +114,50 @@ jobs:
 ```
 
 2. Add your LLM API key (OpenAI by default but Gemini also supported) to your repository secrets as `LLM_API_KEY`
+
+## Usage
+
+### Command Line Interface
+
+After installation, you can use Migraterator from the command line:
+
+```bash
+# Analyze a PR
+migraterator analyze --pr-number=123 --repo-name=yourusername/repo
+
+# Run a local analysis without GitHub API
+migraterator local --repo-path=/path/to/repo
+```
+
+### Using Docker
+
+```bash
+# Build the Docker image
+docker build -t migraterator .
+
+# Run Migraterator in a container
+docker run -it --rm \
+  -e GITHUB_TOKEN=your_github_token \
+  -e LLM_API_KEY=your_llm_api_key \
+  -v $(pwd):/app \
+  migraterator analyze --pr-number=123 --repo-name=yourusername/repo
+```
+
+### Using Make
+
+```bash
+# Install the package
+make install
+
+# Run a local analysis
+make local
+
+# Run tests
+make test
+
+# Run linting
+make lint
+```
 
 ## Local Development
 
