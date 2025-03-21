@@ -1,13 +1,13 @@
 import os
 import json
 import sys
-from terraform_analyser import Terraformanalyser
-from kubernetes_analyser import Kubernetesanalyser
-from risk_assessor import RiskAssessor
-from report_generator import ReportGenerator
-from utils.github_utils import get_pr_files
+from src.terraform_analyser import TerraformAnalyser
+from src.kubernetes_analyser import KubernetesAnalyser
+from src.risk_assessor import RiskAssessor
+from src.report_generator import ReportGenerator
+from src.utils.github_utils import get_pr_files
 
-def main():
+def run_migraterator():
     # Get environment variables
     repo_name = os.environ.get("REPO_NAME")
     pr_number = os.environ.get("PR_NUMBER")
@@ -29,7 +29,7 @@ def main():
     # Check if there are Terraform files in the PR
     if any(f.endswith('.tf') for f in pr_files):
         print("analysing Terraform changes...")
-        terraform_analyser = Terraformanalyser(repo_path, pr_files)
+        terraform_analyser = TerraformAnalyser(repo_path, pr_files)
         terraform_analysis = terraform_analyser.analyse_changes()
     else:
         terraform_analysis = None
@@ -37,7 +37,7 @@ def main():
     # Check if there are Kubernetes files in the PR
     if any(f.endswith(('.yaml', '.yml')) for f in pr_files):
         print("analysing Kubernetes changes...")
-        kubernetes_analyser = Kubernetesanalyser(repo_path, pr_files)
+        kubernetes_analyser = KubernetesAnalyser(repo_path, pr_files)
         kubernetes_analysis = kubernetes_analyser.analyse_changes()
     else:
         kubernetes_analysis = None
@@ -58,6 +58,3 @@ def main():
     
     print("Migration report generated successfully")
     return 0
-
-if __name__ == "__main__":
-    sys.exit(main()) 
